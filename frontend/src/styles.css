@@ -1429,3 +1429,55 @@ tbody tr:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* PQPay transaction table alignment */
+.transactions-table {
+  width: 100%;
+  min-width: 1000px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 13px 16px;
+  vertical-align: middle;
+  text-align: left;
+}
+
+.transactions-table th {
+  height: 38px;
+  font-size: 9px;
+  letter-spacing: 0.65px;
+  background: #fbfcfd;
+}
+
+.transactions-table td {
+  height: 55px;
+  font-size: 11px;
+}
+
+.transactions-table .payment-cell {
+  min-width: 0;
+}
+
+.transactions-table .payment-cell strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.transactions-table .amount-cell {
+  font-weight: 700;
+}
+
+.transactions-table .date-cell {
+  white-space: nowrap;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}

@@ -562,15 +562,29 @@ function App() {
               </div>
             ) : (
               <div className="table-scroll">
-                <table>
+                <table className="transactions-table">
+                  <colgroup>
+                    <col style={{ width: "27%" }} />
+                    <col style={{ width: "17%" }} />
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "9%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "13%" }} />
+                  </colgroup>
+
                   <thead>
                     <tr>
                       <th>Payment</th>
                       <th>Merchant</th>
                       <th>Amount</th>
                       <th>Status</th>
+                      <th>Backend time</th>
+                      <th>Security time</th>
+                      <th>Created</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {payments.map((p) => (
                       <tr key={p.id}>
@@ -585,28 +599,34 @@ function App() {
                             </div>
                           </div>
                         </td>
+
                         <td>
                           {merchantNames[p.merchant_id] ||
                             `Merchant #${p.merchant_id}`}
                         </td>
+
                         <td className="amount-cell">
                           {money(p.amount_paise, p.currency)}
                         </td>
+
                         <td>
                           <span className={`status ${p.status}`}>
                             {p.status}
                           </span>
                         </td>
+
                         <td>
                           {p.processing_time_ms == null
                             ? "—"
                             : `${p.processing_time_ms.toFixed(2)} ms`}
                         </td>
+
                         <td>
                           {p.security_time_ms == null
-                            ? "Not recorded"
+                            ? "—"
                             : `${p.security_time_ms.toFixed(4)} ms`}
                         </td>
+
                         <td className="date-cell">{dateTime(p.created_at)}</td>
                       </tr>
                     ))}
