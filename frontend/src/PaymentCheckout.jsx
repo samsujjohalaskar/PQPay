@@ -1,14 +1,22 @@
+import React, { useEffect, useState } from "react";
+import {
+  Wallet,
+  ShieldCheck,
+  CheckCircle2,
+  Clock3,
+  ArrowLeft,
+} from "lucide-react";
 
-import React, { useEffect, useState } from 'react';
-import { Wallet, ShieldCheck, CheckCircle2, Clock3, ArrowLeft } from 'lucide-react';
-
-const API = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+const API = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(
+  /\/$/,
+  "",
+);
 
 async function apiRequest(path, { token, ...options } = {}) {
   const response = await fetch(`${API}${path}`, {
     ...options,
     headers: {
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
@@ -23,9 +31,9 @@ async function apiRequest(path, { token, ...options } = {}) {
   return data;
 }
 
-const money = (paise, currency = 'INR') =>
-  new Intl.NumberFormat('en-IN', {
-    style: 'currency',
+const money = (paise, currency = "INR") =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
     currency,
   }).format((paise || 0) / 100);
 
@@ -34,7 +42,7 @@ export default function PaymentCheckout({ token, requestToken }) {
   const [payment, setPayment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -42,7 +50,7 @@ export default function PaymentCheckout({ token, requestToken }) {
     async function loadRequest() {
       try {
         const result = await apiRequest(
-          `/payments/requests/${encodeURIComponent(requestToken)}`
+          `/payments/requests/${encodeURIComponent(requestToken)}`,
         );
 
         if (!cancelled) setDetails(result);
@@ -62,19 +70,19 @@ export default function PaymentCheckout({ token, requestToken }) {
 
   async function confirmPayment() {
     setBusy(true);
-    setError('');
+    setError("");
 
     try {
       const result = await apiRequest(
         `/payments/requests/${encodeURIComponent(requestToken)}/confirm`,
         {
           token,
-          method: 'POST',
-        }
+          method: "POST",
+        },
       );
 
       setPayment(result);
-      setDetails(old => ({ ...old, status: 'paid' }));
+      setDetails((old) => ({ ...old, status: "paid" }));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -83,29 +91,38 @@ export default function PaymentCheckout({ token, requestToken }) {
   }
 
   if (loading) {
-    return <main className="checkout-shell">
-      <div className="checkout-card">Loading payment details…</div>
-    </main>;
+    return (
+      <main className="checkout-shell">
+        <div className="checkout-card">Loading payment details…</div>
+      </main>
+    );
   }
 
   if (!details) {
-    return <main className="checkout-shell">
-      <div className="checkout-card">
-        <Wallet size={30} />
-        <h2>Payment request unavailable</h2>
-        <p>{error || 'This payment request could not be found.'}</p>
-        <button className="btn outline" onClick={() => window.location.assign('/')}>
-          <ArrowLeft size={15} /> Go to PQPay
-        </button>
-      </div>
-    </main>;
+    return (
+      <main className="checkout-shell">
+        <div className="checkout-card">
+          <Wallet size={30} />
+          <h2>Payment request unavailable</h2>
+          <p>{error || "This payment request could not be found."}</p>
+          <button
+            className="btn outline"
+            onClick={() => window.location.assign("/")}
+          >
+            <ArrowLeft size={15} /> Go to PQPay
+          </button>
+        </div>
+      </main>
+    );
   }
 
   return (
     <main className="checkout-shell">
       <section className="checkout-card">
         <div className="checkout-brand">
-          <span className="brand-mark"><Wallet size={20}/></span>
+          <span className="brand-mark">
+            <Wallet size={20} />
+          </span>
           <strong>PQPay</strong>
         </div>
 
@@ -125,21 +142,27 @@ export default function PaymentCheckout({ token, requestToken }) {
             </div>
 
             <div className="checkout-expiry">
-              <Clock3 size={15}/>
-              Expires: {new Date(details.expires_at).toLocaleString('en-IN')}
+              <Clock3 size={15} />
+              Expires: {new Date(details.expires_at).toLocaleString("en-IN")}
             </div>
 
-            {details.status === 'expired' ? (
-              <div className="alert error">This payment request has expired.</div>
-            ) : details.status !== 'pending' ? (
+            {details.status === "expired" ? (
+              <div className="alert error">
+                This payment request has expired.
+              </div>
+            ) : details.status !== "pending" ? (
               <div className="alert info">
-                This payment request is no longer available. Status: {details.status}.
+                This payment request is no longer available. Status:{" "}
+                {details.status}.
               </div>
             ) : (
               <>
                 <div className="checkout-security">
-                  <ShieldCheck size={19}/>
-                  <span>Experimental PQPay security protocol will run when you confirm.</span>
+                  <ShieldCheck size={19} />
+                  <span>
+                    Experimental PQPay security protocol will run when you
+                    confirm.
+                  </span>
                 </div>
 
                 <button
@@ -147,19 +170,44 @@ export default function PaymentCheckout({ token, requestToken }) {
                   onClick={confirmPayment}
                   disabled={busy}
                 >
-                  {busy ? 'Processing payment…' : `Confirm and pay ${money(details.amount_paise, details.currency)}`}
+                  {busy
+                    ? "Processing payment…"
+                    : `Confirm and pay ${money(details.amount_paise, details.currency)}`}
                 </button>
               </>
             )}
           </>
         ) : (
           <div className="checkout-success">
-            <CheckCircle2 size={48}/>
+            <CheckCircle2 size={48} />
+
             <h2>Payment successful!</h2>
+
             <strong>{money(payment.amount_paise, payment.currency)}</strong>
+
             <span>Paid to {details.merchant_name}</span>
+
             <small>Reference: {payment.payment_reference}</small>
-            <small>Security time: {payment.security_time_ms?.toFixed(3)} ms</small>
+
+            <div className="payment-metrics">
+              <div>
+                <span>Security execution</span>
+                <strong>
+                  {payment.security_time_ms == null
+                    ? "Not recorded"
+                    : `${payment.security_time_ms.toFixed(4)} ms`}
+                </strong>
+              </div>
+
+              <div>
+                <span>Backend processing</span>
+                <strong>
+                  {payment.processing_time_ms == null
+                    ? "Not recorded"
+                    : `${payment.processing_time_ms.toFixed(4)} ms`}
+                </strong>
+              </div>
+            </div>
           </div>
         )}
 
@@ -167,9 +215,9 @@ export default function PaymentCheckout({ token, requestToken }) {
 
         <button
           className="btn outline full checkout-back"
-          onClick={() => window.location.assign('/')}
+          onClick={() => window.location.assign("/")}
         >
-          <ArrowLeft size={15}/> Go to PQPay dashboard
+          <ArrowLeft size={15} /> Go to PQPay dashboard
         </button>
 
         <p className="checkout-disclaimer">

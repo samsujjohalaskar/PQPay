@@ -1,16 +1,18 @@
+import React, { useEffect, useRef, useState } from "react";
+import QRCode from "qrcode";
+import { Html5QrcodeScanner } from "html5-qrcode";
+import { QrCode, Camera, CheckCircle2, Store, RefreshCw } from "lucide-react";
 
-import React, { useEffect, useRef, useState } from 'react';
-import QRCode from 'qrcode';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-import { QrCode, Camera, CheckCircle2, Store, RefreshCw } from 'lucide-react';
-
-const API = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+const API = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(
+  /\/$/,
+  "",
+);
 
 async function apiRequest(path, { token, ...options } = {}) {
   const response = await fetch(`${API}${path}`, {
     ...options,
     headers: {
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
@@ -26,33 +28,33 @@ async function apiRequest(path, { token, ...options } = {}) {
 }
 
 const money = (paise) =>
-  new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
   }).format((paise || 0) / 100);
 
 export default function StaticQR({ merchants, token, onPaymentComplete }) {
-  const [selectedMerchant, setSelectedMerchant] = useState('');
-  const [qrImage, setQrImage] = useState('');
-  const [merchantCode, setMerchantCode] = useState('');
+  const [selectedMerchant, setSelectedMerchant] = useState("");
+  const [qrImage, setQrImage] = useState("");
+  const [merchantCode, setMerchantCode] = useState("");
   const [merchant, setMerchant] = useState(null);
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState("");
   const [scanning, setScanning] = useState(false);
   const [busy, setBusy] = useState(false);
   const [payment, setPayment] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const scannerRef = useRef(null);
 
-  const activeMerchants = merchants.filter(m => m.is_active);
+  const activeMerchants = merchants.filter((m) => m.is_active);
 
   useEffect(() => {
     if (!selectedMerchant) {
-      setQrImage('');
+      setQrImage("");
       return;
     }
 
     const selected = activeMerchants.find(
-      m => String(m.id) === selectedMerchant
+      (m) => String(m.id) === selectedMerchant,
     );
 
     if (!selected) return;
@@ -60,46 +62,46 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
     QRCode.toDataURL(selected.merchant_code, {
       width: 280,
       margin: 2,
-      errorCorrectionLevel: 'H',
+      errorCorrectionLevel: "H",
     })
       .then(setQrImage)
-      .catch(() => setError('Could not generate QR code.'));
+      .catch(() => setError("Could not generate QR code."));
   }, [selectedMerchant, merchants]);
 
   useEffect(() => {
     if (!scanning) return;
 
     const scanner = new Html5QrcodeScanner(
-      'pqpay-qr-reader',
+      "pqpay-qr-reader",
       { fps: 10, qrbox: { width: 230, height: 230 } },
-      false
+      false,
     );
 
     scannerRef.current = scanner;
 
     scanner.render(
-      async decodedText => {
+      async (decodedText) => {
         try {
           await scanner.clear();
           setScanning(false);
 
-          const code = decodedText.trim().replace(/^PQPay:/i, '');
+          const code = decodedText.trim().replace(/^PQPay:/i, "");
 
-          setError('');
+          setError("");
           setPayment(null);
           setMerchant(null);
           setMerchantCode(code);
 
           const result = await apiRequest(
-            `/payments/static/${encodeURIComponent(code)}`
+            `/payments/static/${encodeURIComponent(code)}`,
           );
 
           setMerchant(result);
         } catch (err) {
-          setError(err.message || 'Unable to identify this merchant.');
+          setError(err.message || "Unable to identify this merchant.");
         }
       },
-      () => {}
+      () => {},
     );
 
     return () => {
@@ -113,30 +115,30 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
   async function submitPayment(e) {
     e.preventDefault();
     setBusy(true);
-    setError('');
+    setError("");
     setPayment(null);
 
     try {
       const amountPaise = Math.round(Number(amount) * 100);
 
       if (!Number.isSafeInteger(amountPaise) || amountPaise <= 0) {
-        throw new Error('Enter a valid payment amount.');
+        throw new Error("Enter a valid payment amount.");
       }
 
       const result = await apiRequest(
         `/payments/static/${encodeURIComponent(merchantCode)}/pay`,
         {
           token,
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify({
             amount_paise: amountPaise,
-            currency: 'INR',
+            currency: "INR",
           }),
-        }
+        },
       );
 
       setPayment(result);
-      setAmount('');
+      setAmount("");
       onPaymentComplete?.(result);
     } catch (err) {
       setError(err.message);
@@ -147,10 +149,10 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
 
   function resetScanner() {
     setMerchant(null);
-    setMerchantCode('');
-    setAmount('');
+    setMerchantCode("");
+    setAmount("");
     setPayment(null);
-    setError('');
+    setError("");
     setScanning(false);
   }
 
@@ -158,7 +160,9 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
     <section className="static-qr-grid">
       <div className="info-card static-qr-card">
         <div className="info-heading">
-          <span className="info-icon merchant"><QrCode size={19} /></span>
+          <span className="info-icon merchant">
+            <QrCode size={19} />
+          </span>
           <div>
             <h3>Your permanent merchant QR</h3>
             <p>Customers scan this code and enter their amount</p>
@@ -173,10 +177,10 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
               Select merchant
               <select
                 value={selectedMerchant}
-                onChange={e => setSelectedMerchant(e.target.value)}
+                onChange={(e) => setSelectedMerchant(e.target.value)}
               >
                 <option value="">Choose a merchant</option>
-                {activeMerchants.map(m => (
+                {activeMerchants.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.business_name}
                   </option>
@@ -188,10 +192,18 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
               <div className="qr-display">
                 <img src={qrImage} alt="Permanent merchant QR code" />
                 <strong>
-                  {activeMerchants.find(m => String(m.id) === selectedMerchant)?.business_name}
+                  {
+                    activeMerchants.find(
+                      (m) => String(m.id) === selectedMerchant,
+                    )?.business_name
+                  }
                 </strong>
                 <span>
-                  {activeMerchants.find(m => String(m.id) === selectedMerchant)?.merchant_code}
+                  {
+                    activeMerchants.find(
+                      (m) => String(m.id) === selectedMerchant,
+                    )?.merchant_code
+                  }
                 </span>
                 <small>Permanent static QR · INR</small>
               </div>
@@ -202,7 +214,9 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
 
       <div className="info-card static-qr-card">
         <div className="info-heading">
-          <span className="info-icon shield"><Camera size={19} /></span>
+          <span className="info-icon shield">
+            <Camera size={19} />
+          </span>
           <div>
             <h3>Scan & pay</h3>
             <p>Scan a merchant's permanent QR code</p>
@@ -220,7 +234,7 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
               <button
                 className="btn primary"
                 onClick={() => {
-                  setError('');
+                  setError("");
                   setScanning(true);
                 }}
               >
@@ -260,7 +274,7 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
                   min="0.01"
                   step="0.01"
                   value={amount}
-                  onChange={e => setAmount(e.target.value)}
+                  onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
                   required
                 />
@@ -268,10 +282,14 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
             </label>
 
             <button className="btn primary" disabled={busy}>
-              {busy ? 'Processing payment…' : 'Confirm payment'}
+              {busy ? "Processing payment…" : "Confirm payment"}
             </button>
 
-            <button type="button" className="btn outline" onClick={resetScanner}>
+            <button
+              type="button"
+              className="btn outline"
+              onClick={resetScanner}
+            >
               Scan another QR
             </button>
           </form>
@@ -280,10 +298,33 @@ export default function StaticQR({ merchants, token, onPaymentComplete }) {
         {payment && (
           <div className="qr-success">
             <CheckCircle2 size={34} />
+
             <h3>Payment successful</h3>
             <strong>{money(payment.amount_paise)}</strong>
             <span>{merchant?.business_name}</span>
-            <small>{payment.payment_reference}</small>
+
+            <small>Reference: {payment.payment_reference}</small>
+
+            <div className="payment-metrics">
+              <div>
+                <span>Security execution</span>
+                <strong>
+                  {payment.security_time_ms == null
+                    ? "Not recorded"
+                    : `${payment.security_time_ms.toFixed(4)} ms`}
+                </strong>
+              </div>
+
+              <div>
+                <span>Backend processing</span>
+                <strong>
+                  {payment.processing_time_ms == null
+                    ? "Not recorded"
+                    : `${payment.processing_time_ms.toFixed(4)} ms`}
+                </strong>
+              </div>
+            </div>
+
             <button className="btn outline" onClick={resetScanner}>
               <RefreshCw size={15} /> Make another payment
             </button>

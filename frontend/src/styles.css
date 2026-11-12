@@ -1266,7 +1266,6 @@ tbody tr:hover {
   gap: 5px;
 }
 
-
 .checkout-shell {
   min-height: 100vh;
   display: grid;
@@ -1289,7 +1288,9 @@ tbody tr:hover {
   align-items: center;
   gap: 10px;
   margin-bottom: 32px;
-  font: 800 20px Manrope, sans-serif;
+  font:
+    800 20px Manrope,
+    sans-serif;
 }
 
 .checkout-brand .brand-mark {
@@ -1303,7 +1304,9 @@ tbody tr:hover {
 }
 
 .checkout-card h2 {
-  font: 800 22px Manrope, sans-serif;
+  font:
+    800 22px Manrope,
+    sans-serif;
   margin: 8px 0 22px;
 }
 
@@ -1327,7 +1330,9 @@ tbody tr:hover {
 }
 
 .checkout-amount strong {
-  font: 800 30px Manrope, sans-serif;
+  font:
+    800 30px Manrope,
+    sans-serif;
   color: #242d40;
 }
 
@@ -1363,7 +1368,9 @@ tbody tr:hover {
 }
 
 .checkout-success strong {
-  font: 800 28px Manrope, sans-serif;
+  font:
+    800 28px Manrope,
+    sans-serif;
 }
 
 .checkout-success span,
@@ -1386,4 +1393,39 @@ tbody tr:hover {
 
 .checkout-error {
   margin-top: 14px;
+}
+
+.payment-metrics {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.payment-metrics > div {
+  background: #f5f6fb;
+  border: 1px solid #e9ebf2;
+  border-radius: 9px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: left;
+}
+
+.payment-metrics span {
+  font-size: 10px;
+  color: #8993a3;
+}
+
+.payment-metrics strong {
+  font-size: 14px;
+  color: #293548;
+}
+
+@media (max-width: 420px) {
+  .payment-metrics {
+    grid-template-columns: 1fr;
+  }
 }
