@@ -538,9 +538,6 @@ function App() {
                 <RefreshCw size={16} />
               </button>
             </div>
-            <th>Backend time</th>
-            <th>Security time</th>
-            <th>Created</th>
             {loading ? (
               <div className="empty-state">
                 <div className="spinner" />
@@ -581,7 +578,7 @@ function App() {
                       <th>Status</th>
                       <th>Backend time</th>
                       <th>Security time</th>
-                      <th>Created</th>
+                      <th>Created at</th>
                     </tr>
                   </thead>
 
